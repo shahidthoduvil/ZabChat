@@ -1,0 +1,102 @@
+{% load static %}
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+</head>
+
+<body>
+    {% block content %} {% endblock content %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var sendBtn = document.getElementById("send-btn");
+            var editBtn = document.getElementById("edit-btn");
+            var userInput = document.getElementById("user-input");
+            var chatBox = document.getElementById("chat-box");
+
+            sendBtn.addEventListener("click", function () {
+                var message = userInput.value.trim();
+                if (!message) {
+                    appendMessage("I'm sorry, but I can't assist without a message.", "error");
+                    return;
+                }
+                appendMessage(message, "sent");
+                userInput.value = "";
+                scrollToBottom();
+
+
+                appendMessage("Loading...", "loading");
+
+                $.ajax({
+                    url: "http://127.0.0.1:5000/google_bard_response/?prompt=" + message,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (res) {
+
+                        $(".message.loading").remove();
+                        console.log(res);
+
+                        if (res && res.message) {
+                            appendMessage(res.message, "received");
+                            enableEditOption();
+                        } else {
+                            appendMessage("Error: Empty response received", "error");
+                        }
+                    },
+                    error: function (err) {
+
+                        $(".message.loading").remove();
+                        appendMessage("Error: Unable to fetch response", "error");
+                        enableEditOption();
+                    }
+                });
+            });
+
+
+
+            editBtn.addEventListener("click", function () {
+                userInput.value = chatBox.lastChild.innerText;
+                editBtn.style.display = "none";
+            });
+
+
+            chatBox.addEventListener("click", function (event) {
+                var target = event.target;
+                if (target.classList.contains("message")) {
+                    if (target.classList.contains("sent")) {
+                        userInput.value = target.innerText;
+                        enableEditOption();
+                    }
+                }
+            });
+
+            function appendMessage(message, type) {
+                var messageElement = document.createElement("div");
+                messageElement.classList.add("message", type);
+                messageElement.innerText = message;
+                chatBox.appendChild(messageElement);
+
+                if (type === "sent") {
+                    enableEditOption();
+                }
+            }
+
+            function enableEditOption() {
+                editBtn.style.display = "block";
+            }
+
+            function scrollToBottom() {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+
+</html>

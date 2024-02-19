@@ -1,0 +1,22 @@
+{% extends "./base.html" %}
+{% block content %}
+
+
+<div class="chat-container">
+    <div class="chat-header">
+      <h2>ZABCHAT</h2>
+    </div>
+    <div class="chat-box" id="chat-box">
+        <div class="message received">Hello! How can I assist you today?</div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-btn">Send</button>
+        <button id="edit-btn" style="display: none;">Edit</button>
+    </div>
+  </div>
+
+
+
+{% endblock content %}
+
